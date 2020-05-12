@@ -1,0 +1,77 @@
+---
+# system init
+
+- name: Copy hosts file
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: Copy the resolv.conf
+  copy: src=resolv.conf dest=/etc/resolv.conf
+
+- name: Install System init  package
+  yum: name={{ item }} state=present
+  with_items:
+   - vim
+   - wget
+   - net-tools
+   - lsof
+   - unzip
+   - psmisc
+   - sysstat
+
+- name: Remove System init  package
+  yum: name={{ item }} state=removed
+  with_items:
+   - NetworkManager
+   - NetworkManager-libn
+   - gcc
+   - postfix
+   - firewalld
+
+- name: Add group "rancher"
+  group:
+    name: rancher
+    gid: 600
+
+- name: Add user "rancher"
+  user:
+    name: rancher
+    comment: Rancher
+    uid: 600
+    shell: /bin/bash
+    group: rancher
+
+- name: Create the dir
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: rancher
+    group: rancher
+  with_items:
+    - /opt/app
+    - /opt/app/releases
+    - /opt/logs/
+    - /opt/exporter
+  when: ansible_distribution == "CentOS" and
+              (ansible_distribution_major_version == "6" or ansible_distribution_major_version == "7")
+
+- name: Copy limits.conf file
+  copy: src=limits.conf dest=/etc/security/limits.conf owner=root group=root mode=0644 force=yes
+
+- name: Copy sysctl file
+  copy: src=sysctl.conf dest=/etc/sysctl.conf owner=root group=root
+
+- name: Make sysctl -p 
+  command: sysctl -p
+
+- name: update Selinux
+  replace:
+    path: /etc/selinux/config
+    regexp: "enforcing"
+    replace: "disabled"
+    backup: yes
+
+- name: local shell disable selinux
+  shell: '/sbin/setenforce 0'
+
+- name: disabled firewalld
+  shell: systemctl stop firewalld && systemctl disabled firewalld

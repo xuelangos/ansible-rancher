@@ -1,0 +1,45 @@
+---
+# system init
+- name: Copy sysctl file
+  copy: src=sysctl.conf dest=/etc/sysctl.conf owner=root group=root
+
+- name: Make sysctl -p
+  command: sysctl -p
+
+
+- name: Install docker init  package
+  yum: name={{ item }} state=present
+  with_items:
+    - yum-utils 
+    - device-mapper-persistent-data 
+    - lvm2
+    - yum-plugin-versionlock
+    #- docker-ce 
+
+- name: Install docker-ce.repo
+  command: yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+- name: Install docker
+  yum: name={{ item }} state=present
+  with_items:
+    - docker-ce-18.06.3.ce-3.el7
+- name: Create the docker images dir
+  file: path={{ item }} state=directory
+  with_items:
+    - /opt/data/docker/image
+    - /etc/docker
+
+- name: Copy docker daemon json file
+  copy: src=daemon.json dest=/etc/docker/daemon.json
+
+- name: versionlock docker-ce
+  command: yum versionlock add docker-ce docker-ce-cli
+
+- name: start docker service
+  command: systemctl start docker
+
+- name: enable docker service
+  command: systemctl enable docker
+
+- name: usermod app of docker
+  command: usermod -aG docker rancher

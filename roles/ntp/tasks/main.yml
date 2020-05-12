@@ -1,0 +1,34 @@
+---
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Ensure NTP-related packages are installed.
+  package:
+    name: ntp
+    state: present
+
+- name: Ensure tzdata package is installed (Linux).
+  package:
+    name: "{{ ntp_tzdata_package }}"
+    state: present
+  when: ansible_system == "Linux"
+
+- name: Ensure NTP is running and enabled as configured.
+  service:
+    name: "{{ ntp_daemon }}"
+    state: started
+    enabled: yes
+  when: ntp_enabled
+
+- name: Ensure NTP is stopped and disabled as configured.
+  service:
+    name: "{{ ntp_daemon }}"
+    state: stopped
+    enabled: no
+  when: not ntp_enabled
+
+- name: Generate ntp.conf file
+  template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
+  notify: restart ntp

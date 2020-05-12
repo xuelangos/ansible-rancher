@@ -1,0 +1,16 @@
+{
+    "oom-score-adjust": -1000,
+    "log-driver": "json-file",
+    "data-root": "/opt/data/docker",	
+    "log-opts": {
+    "max-size": "100m",
+    "max-file": "3"
+    },
+    "max-concurrent-downloads": 10,
+    "max-concurrent-uploads": 10,
+    "registry-mirrors": ["https://7bezldxe.mirror.aliyuncs.com"],
+    "storage-driver": "overlay2",
+    "storage-opts": [
+    "overlay2.override_kernel_check=true"
+    ]
+}
