@@ -72,6 +72,7 @@
 
 - name: local shell disable selinux
   shell: '/sbin/setenforce 0'
+  when: ansible_selinux.status == 'enabled'
 
 - name: disabled firewalld
   shell: systemctl stop firewalld && systemctl disabled firewalld

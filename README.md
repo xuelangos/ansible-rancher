@@ -39,9 +39,3 @@ master节点安装rancher，这里使用了阿里云镜像源，写死安装2.4.
 ansible-playbook rancher.yml -i 1.txt --extra "host=master name=rancher"
 ```
 
-#### 小问题
-local shell 环境下执行`setenforce 0`，在playbook中测试抛错，无论command，还是shell模块皆是如此，有同样问题的童鞋可以注释掉`roles/common/tasks/main.yml`最后关于setenforce的两行内容；手动执行
-```
-ansible -i test.host all -m shell -a "setenforce 0"
-```
-知道原因的童鞋欢迎沟通交流，一起进步。
