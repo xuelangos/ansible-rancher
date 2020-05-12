@@ -1,5 +1,8 @@
 # ansible-rancher
 init os env and install rancher single
+
+适用centos7x版本
+
 #### 说明：k8s环境init playbook
 - ntp同步
 - selinux
